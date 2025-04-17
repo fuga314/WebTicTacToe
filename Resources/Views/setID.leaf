@@ -1,0 +1,12 @@
+ !doctype html
+     <html>
+     <head>
+         <title>Welcome to TicTacToe</title>
+     </head>
+     <body>
+         <h1>Ready to start</h1>
+         <form method="POST" action="/game/#(id)">
+             <button type="submit">Play</button>
+         </form>
+     </body>
+     </html>
