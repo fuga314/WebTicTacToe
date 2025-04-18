@@ -21,12 +21,30 @@ class WebGameField: AsyncResponseEncodable{
 		}
 	}
 
+	func addSymbol(index: Int) {
+		let countX = field.count(of: "X")
+		let countO = field.count(of: "O")
+		if field[index] == "" {
+			field[index] = (countX > countO ? "O" : "X")
+		}
+	}
+
 	func encodeResponse(for: Request) async throws -> Response {
 		Response(status: .ok)
 	}
 
 	func encodeResponse(status: HTTPStatus, headers: HTTPHeaders, for: Request) async throws -> Response {
 		Response(status: .ok)
+	}
+}
+
+extension Array where Element: Equatable {
+	func count(of: Element) -> Int {
+		var count = 0
+		for item in self where item == of {
+			count += 1
+		}
+		return count
 	}
 }
 

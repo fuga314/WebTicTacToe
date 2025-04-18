@@ -19,5 +19,6 @@
     </head>
     <body>
 	#table()
+	<p>#(fields)</p>
     </body>
 </html>

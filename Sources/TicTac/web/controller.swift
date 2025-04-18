@@ -14,8 +14,8 @@ struct Controller: RouteCollection {
 		games.group(":uuid") { game in
 //			game.post(use: play)
 		}
-		games.group(":side") { game in
-			games.get(use: start)
+		games.group("side") { game in
+			games.post(use: start)
 		}
 	}
 
@@ -40,20 +40,19 @@ struct Controller: RouteCollection {
 //	}
 
 	func start(req: Request) async throws -> View {
-		print("HERE")
 		var id = UUID()
 		let dataActor = container.container.resolve(DataGames.self)!
 		while await dataActor.getGameForID(id: id) != nil {
 			id = UUID()
 		}
 		await dataActor.insert(game: DataCurrentGame(id: id, currentGame: DataGameField()))
-		let value: String = req.parameters.get("side")!
-		if value == "side=O" {
+		let value: String = try req.content.get(String.self, at: "side")
+		if value == "O" {
 			let dataBot = container.container.resolve(TicTacBot.self)!
 			await dataBot.nextTurn(id: id)
 		}
-		let webArray = await GameFieldToWeb(game: DataGameFieldToGameField(game: dataActor.getGameForID(id: id)!))
-		return try await req.view.render("setID", [id: id])
+		let webArray = await GameFieldToWeb(game: DataGameFieldToGameField(game: dataActor.getGameForID(id: id)!)).currentfield.field
+		return try await req.view.render("field", ["fields": webArray])
 //		let str: [String] = ["O", "O", "X", "X", "", "O", "O", "X", "X"]
 //		return try await req.view.render("field", ["field": str])
 	}
@@ -65,20 +64,20 @@ enum TableTagError: Error {
 
 struct TableTag: UnsafeUnescapedLeafTag {
 	func render(_ ctx: LeafContext) throws -> LeafData {
-		guard let name = ctx.data["field"]?.array else {
+		guard let name = ctx.data["fields"]?.array else {
 			throw TableTagError.nameNotFound
 		}
-		var resultStr = "<form method=\"POST\" action=\"/game/#(id)\">\n<table>\n<tr>"
+		var resultStr = "<form method=\"POST\" action=\"/game/\">\n<table>\n<tr>"
 		for i in 0..<9 {
 			if i % 3 == 0 {
 				resultStr += "</tr>\n<tr>\n"
 			}
-			resultStr += "<td><button type=\"submit\" value\"X\">\(name[i].string!)</button></td>"
+			resultStr += "<td><button type=\"submit\" value=\(i)>\(name[i].string!)</button></td>"
 			if i == 8 {
 				resultStr += "</tr>\n"
 			}
 		}
-		resultStr += "</table>\n</form>\n"
+		resultStr += "</table>\n</form>\n<p>#(fields)</p>"
 		return LeafData.string(resultStr)
 	}
 }

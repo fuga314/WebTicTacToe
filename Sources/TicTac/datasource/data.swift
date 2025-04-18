@@ -188,7 +188,10 @@ class TicTacBot: TicTacService {
 			result = (scores.max {a, b in a.0 < b.0 })!
 		}
 		else {
-			result = (scores.min {a, b in a.0 < b.0 })!
+			guard let resultBuf = (scores.min {a, b in a.0 < b.0 }) else {
+				return 0
+			}
+			result = resultBuf
 		}
 		bestMove = result.1
 		return result.0

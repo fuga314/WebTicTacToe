@@ -5,7 +5,7 @@
      </head>
      <body>
          <h1>Choose your side</h1>
-         <form method="GET" action="/game">
+         <form method="POST" action="/game">
              <input type="radio" name="side" value="X">X
 			 <input type="radio" name="side" value="O">O
              <button type="submit">Go</button>
